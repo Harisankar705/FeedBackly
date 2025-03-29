@@ -8,23 +8,23 @@ const Footer = () => {
         <nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
           <div className="px-5 py-2">
             <Link href="/">
-              <a className="text-sm text-neutral hover:text-darktext">
+              <span className="text-sm text-neutral hover:text-darktext cursor-pointer">
                 Home
-              </a>
+              </span>
             </Link>
           </div>
           <div className="px-5 py-2">
             <Link href="/about">
-              <a className="text-sm text-neutral hover:text-darktext">
+              <span className="text-sm text-neutral hover:text-darktext cursor-pointer">
                 About
-              </a>
+              </span>
             </Link>
           </div>
           <div className="px-5 py-2">
             <Link href="/contact">
-              <a className="text-sm text-neutral hover:text-darktext">
+              <span className="text-sm text-neutral hover:text-darktext cursor-pointer">
                 Contact
-              </a>
+              </span>
             </Link>
           </div>
           <div className="px-5 py-2">
@@ -52,7 +52,7 @@ const Footer = () => {
             <Github className="h-6 w-6" />
           </a>
         </div>
-        <p className="mt-8 text-center text-sm text-neutral">&copy; 2023 SurveyMERN. All rights reserved.</p>
+        <p className="mt-8 text-center text-sm text-neutral">&copy; 2023 FeedBackly. All rights reserved.</p>
       </div>
     </footer>
   );

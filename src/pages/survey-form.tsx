@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { validationSurveySchema } from "@shared/schema";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { submitSurvey } from "@/lib/survey-service";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -12,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, AlertCircle, FileText, Users, BarChart, ChevronRight } from "lucide-react";
+import { validationSurveySchema } from "shared/schema";
+import { surveyAPI } from "@/api/surveyApi";
 
 type SurveyFormValues = z.infer<typeof validationSurveySchema>;
 
@@ -28,15 +27,15 @@ const SurveyForm = () => {
       gender: "",
       nationality: "",
       email: "",
-      phone: "",
+      phonenumber: "",
       address: "",
       message: "",
-      antispam: ""
+      antispam: "12"
     }
   });
   
   const { mutate, isPending } = useMutation({
-    mutationFn: submitSurvey,
+    mutationFn: surveyAPI.submitSurvey,
     onSuccess: () => {
       toast({
         title: "Survey submitted successfully!",
@@ -85,7 +84,6 @@ const SurveyForm = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="p-6">
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              {/* Name field */}
               <div className="sm:col-span-3">
                 <FormField
                   control={form.control}
@@ -102,7 +100,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Gender field */}
               <div className="sm:col-span-3">
                 <FormField
                   control={form.control}
@@ -119,11 +116,11 @@ const SurveyForm = () => {
                             <SelectValue placeholder="Select gender" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="non-binary">Non-binary</SelectItem>
-                          <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                        <SelectContent className="bg-white border border-gray-300 shadow-md rounded-md">
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Non-binary">Non-binary</SelectItem>
+                          <SelectItem value="Prefer-not-to-say">Prefer not to say</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -132,7 +129,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Nationality field */}
               <div className="sm:col-span-3">
                 <FormField
                   control={form.control}
@@ -149,7 +145,7 @@ const SurveyForm = () => {
                             <SelectValue placeholder="Select nationality" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-white border border-gray-300 shadow-md rounded-md">
                           <SelectItem value="us">United States</SelectItem>
                           <SelectItem value="ca">Canada</SelectItem>
                           <SelectItem value="uk">United Kingdom</SelectItem>
@@ -167,7 +163,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Email field */}
               <div className="sm:col-span-3">
                 <FormField
                   control={form.control}
@@ -184,11 +179,10 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Phone field */}
               <div className="sm:col-span-3">
                 <FormField
                   control={form.control}
-                  name="phone"
+                  name="phonenumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block text-sm font-medium text-gray-900">Phone Number</FormLabel>
@@ -201,7 +195,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Address field */}
               <div className="sm:col-span-6">
                 <FormField
                   control={form.control}
@@ -218,7 +211,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Message field */}
               <div className="sm:col-span-6">
                 <FormField
                   control={form.control}
@@ -235,7 +227,6 @@ const SurveyForm = () => {
                 />
               </div>
               
-              {/* Anti-spam measure */}
               <div className="sm:col-span-6">
                 <div className="bg-[#66F4FF]/10 p-4 rounded-md">
                   <FormField
@@ -258,8 +249,8 @@ const SurveyForm = () => {
               </div>
             </div>
             
-            <div className="mt-6 flex items-center justify-end">
-              <Button
+            <div className="mt-6 flex items-center justify-end gap-4"> {/* Added gap-4 */}
+            <Button
                 type="button"
                 variant="outline"
                 onClick={resetForm}

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchSurveys, deleteSurvey, exportSurveysToCSV, downloadCSV } from "@/lib/survey-service";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -12,17 +11,50 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FileCog, Calendar, PieChart, FileText, Users, Eye, Trash2 } from "lucide-react";
+import { deleteSurvey, downloadCSV, exportSurveysToCSV } from "@/lib/survey-service";
+import { ISurvey } from "@/interfaces/interface";
+import { surveyAPI } from "@/api/surveyApi";
+import { useAuthStore } from "@/store/authStore";
+interface Survey {
+  id: number;
+  name: string;
+  email: string;
+  phonenumber: string;
+  address: string;
+  message: string;
+  gender: string;
+  nationality: string;
+  createdAt: string
+}
 
 const AdminDashboard = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewSurvey, setViewSurvey] = useState<any | null>(null);
+  const [loading,setLoading]=useState(false)
+  const [error, setError] = useState<string | null>(null);
+  // const [surveys,setSurveys]=useState<ISurvey[]>([])
+  // useEffect(()=>{
+  //   const fetchSurveys=async()=>{
+  //     try {
+  //       setLoading(true)
+  //     const response=await surveyAPI.fetchSurvey()
+  //     setSurveys(response.data)
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+  //   finally{
+  //     setLoading(false)
+  //   }
+  // }
+  //   fetchSurveys()
+  // },[])
   
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (!isAuthenticated) {
       navigate("/");
       toast({
         title: "Access denied",
@@ -30,49 +62,33 @@ const AdminDashboard = () => {
         variant: "destructive",
       });
     }
-  }, [isAuthenticated, authLoading, navigate, toast]);
+  }, [isAuthenticated, navigate, toast]);
   
-  const { data: surveys, isLoading, isError } = useQuery({
-    queryKey: ["/api/surveys"],
-    enabled: isAuthenticated
-  });
-  
-  const deleteMutation = useMutation({
-    mutationFn: deleteSurvey,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/surveys"] });
-      toast({
-        title: "Survey deleted",
-        description: "The survey has been successfully deleted.",
-      });
-      setDeleteId(null);
+  const { data: surveys = [], isLoading, isError } = useQuery({
+    queryKey: ["surveys"],
+    queryFn: async () => {
+      const response = await surveyAPI.fetchSurvey();
+      return response.data;
     },
-    onError: (error) => {
-      toast({
-        title: "Delete failed",
-        description: error instanceof Error ? error.message : "There was an error deleting the survey",
-        variant: "destructive",
-      });
-    }
+   
   });
   
-  const handleDeleteClick = (id: number) => {
-    setDeleteId(id);
-  };
+  
+  
   
   const handleViewClick = (survey: any) => {
     setViewSurvey(survey);
   };
   
-  const handleConfirmDelete = () => {
-    if (deleteId) {
-      deleteMutation.mutate(deleteId);
-    }
-  };
+ 
   
   const handleExport = () => {
     if (surveys && surveys.length > 0) {
-      const csvData = exportSurveysToCSV(surveys);
+    const formattedSurveys=surveys.map((survey:ISurvey)=>({
+        ...survey,
+        createdAt:typeof survey.createdAt==='string'  ? new Date(survey.createdAt):survey.createdAt
+      }))
+      const csvData = exportSurveysToCSV(formattedSurveys);
       const date = new Date().toISOString().split('T')[0];
       downloadCSV(csvData, `survey-data-${date}.csv`);
       toast({
@@ -88,7 +104,7 @@ const AdminDashboard = () => {
     }
   };
   
-  if (authLoading) {
+  if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="text-center">
@@ -99,9 +115,7 @@ const AdminDashboard = () => {
     );
   }
   
-  if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
-  }
+  
   
   const getDisplayedNationality = (code: string): string => {
     const nationalities: Record<string, string> = {
@@ -129,7 +143,7 @@ const AdminDashboard = () => {
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-2xl font-semibold text-gray-900">Survey Submissions</h1>
-            <p className="mt-2 text-sm text-[#7D99AA]">A list of all survey submissions including name, email, phone number and date.</p>
+            <p className="mt-2 text-sm text-[#7D99AA]">A list of all survey submissions including name, email, phonenumber number and date.</p>
           </div>
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <Button 
@@ -145,13 +159,13 @@ const AdminDashboard = () => {
           <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                {isLoading ? (
+                {loading ? (
                   <div className="p-8">
                     <Skeleton className="h-8 w-full mb-4" />
                     <Skeleton className="h-8 w-full mb-4" />
                     <Skeleton className="h-8 w-full mb-4" />
                   </div>
-                ) : isError ? (
+                ) : error ? (
                   <div className="text-center p-8 text-red-500">
                     Failed to load survey data
                   </div>
@@ -179,7 +193,7 @@ const AdminDashboard = () => {
                             {survey.email}
                           </TableCell>
                           <TableCell className="whitespace-nowrap px-3 py-4 text-[#7D99AA]">
-                            {survey.phone}
+                            {survey.phonenumber}
                           </TableCell>
                           <TableCell className="whitespace-nowrap px-3 py-4 text-[#7D99AA]">
                             {getDisplayedNationality(survey.nationality)}
@@ -195,13 +209,7 @@ const AdminDashboard = () => {
                             >
                               <Eye className="h-4 w-4 mr-1" /> View
                             </Button>
-                            <Button
-                              variant="ghost"
-                              className="text-red-500 hover:text-red-700"
-                              onClick={() => handleDeleteClick(survey.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" /> Delete
-                            </Button>
+                            
                           </TableCell>
                         </TableRow>
                       ))}
@@ -301,9 +309,7 @@ const AdminDashboard = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-500 hover:bg-red-600">
-              Delete
-            </AlertDialogAction>
+           
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -312,13 +318,13 @@ const AdminDashboard = () => {
       <Dialog open={viewSurvey !== null} onOpenChange={(open) => {
         if (!open) setViewSurvey(null);
       }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg bg-white">
           <DialogHeader>
             <DialogTitle>Survey Details</DialogTitle>
           </DialogHeader>
           
           {viewSurvey && (
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-4 bg-white">
               <div className="grid grid-cols-3 gap-4">
                 <div className="font-medium text-sm text-gray-500">Name:</div>
                 <div className="col-span-2 text-sm">{viewSurvey.name}</div>
@@ -341,7 +347,7 @@ const AdminDashboard = () => {
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="font-medium text-sm text-gray-500">Phone:</div>
-                <div className="col-span-2 text-sm">{viewSurvey.phone}</div>
+                <div className="col-span-2 text-sm">{viewSurvey.phonenumber}</div>
               </div>
               
               <div className="grid grid-cols-3 gap-4">

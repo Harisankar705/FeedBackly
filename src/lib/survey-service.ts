@@ -1,5 +1,10 @@
+import { InsertSurvey, Survey, surveys } from './../../shared/schema';
+import { createInsertSchema } from 'drizzle-zod';
+export const insertSurveySchema = createInsertSchema(surveys).omit({
+  id: true,
+  createdAt: true,
+});
 import { apiRequest } from "./queryClient";
-import type { Survey, InsertSurvey } from "@shared/schema";
 
 export const submitSurvey = async (data: InsertSurvey & { antispam: string }): Promise<Survey> => {
   const response = await apiRequest("POST", "/api/surveys", data);

@@ -26,7 +26,7 @@ export const surveys = pgTable("surveys", {
   gender: text("gender").notNull(),
   nationality: text("nationality").notNull(),
   email: text("email").notNull(),
-  phone: text("phone").notNull(),
+  phonenumber: text("phonenumber").notNull(),
   address: text("address").notNull(),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -38,18 +38,62 @@ export const insertSurveySchema = createInsertSchema(surveys).omit({
 });
 
 export const validationSurveySchema = insertSurveySchema.extend({
-  name: z.string().min(1, "Name is required"),
-  gender: z.string().min(1, "Gender selection is required"),
-  nationality: z.string().min(1, "Nationality selection is required"),
-  email: z.string().email("Invalid email address").min(1, "Email is required"),
-  phone: z.string().regex(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/, "Invalid phone number format").min(1, "Phone number is required"),
-  address: z.string().min(1, "Address is required"),
-  message: z.string().min(1, "Message is required"),
-  antispam: z.string().refine(val => val === "12", {
-    message: "Incorrect answer. Please try again."
-  }),
+  name: z.string()
+    .trim()
+    .min(1, "Name is required")
+    .refine(val => val.trim().length > 0, {
+      message: "Name cannot be just whitespace"
+    }),
+    
+  gender: z.string()
+    .min(1, "Gender selection is required")
+    .refine(val => val.trim().length > 0, {
+      message: "Please select a valid gender"
+    }),
+    
+  nationality: z.string()
+    .min(1, "Nationality selection is required")
+    .refine(val => val.trim().length > 0, {
+      message: "Please select a valid nationality"
+    }),
+    
+  email: z.string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Invalid email address")
+    .refine(val => val.trim().length > 0, {
+      message: "Email cannot be just whitespace"
+    }),
+    
+  phonenumber: z.string()
+    .trim()
+    .min(1, "Phone number is required")
+    .regex(/^(\+\d{1,3}[- ]?)?\(?\d{3}\)?[- ]?\d{3}[- ]?\d{4}$/, {
+      message: "Invalid phone number format (e.g., +1 234 567 8900)"
+    })
+    .refine(val => val.trim().length > 0, {
+      message: "Phone number cannot be just whitespace"
+    }),
+    
+  address: z.string()
+    .trim()
+    .min(1, "Address is required")
+    .refine(val => val.trim().length > 0, {
+      message: "Address cannot be just whitespace"
+    }),
+    
+  message: z.string()
+    .trim()
+    .min(1, "Message is required")
+    .refine(val => val.trim().length > 0, {
+      message: "Message cannot be just whitespace"
+    }),
+    
+  antispam: z.string()
+    .refine(val => val === "12", {
+      message: "Incorrect answer. Please try again."
+    })
 });
-
 // Export types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
