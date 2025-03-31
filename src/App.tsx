@@ -11,6 +11,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useAuthStore } from "./store/authStore";
 
+
 function Router() {
   const {isAuthenticated}=useAuthStore()
   return (
