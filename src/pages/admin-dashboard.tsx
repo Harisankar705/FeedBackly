@@ -292,9 +292,7 @@ const AdminDashboard = () => {
           
           
           
-          <Card>
-           
-          </Card>
+         
           <Card>
             <CardContent className="p-5">
               <div className="flex items-center">
