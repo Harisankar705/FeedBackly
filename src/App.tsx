@@ -21,7 +21,7 @@ function Router() {
         {isAuthenticated ? <AdminDashboard /> : <Redirect to="/" />}
       </Route>      <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
-      <Route component={NotFound} />
+      <Route  path='*' component={NotFound} />
     </Switch>
   );
 }
