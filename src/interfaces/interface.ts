@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 export interface ISurvey{
+    id?:string
     name:string,
     gender:string,
     phonenumber:string,
