@@ -293,23 +293,7 @@ const AdminDashboard = () => {
           
           
           <Card>
-            <CardContent className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="rounded-md bg-[#66C4FF]/20 p-3">
-                    <PieChart className="h-5 w-5 text-[#66C4FF]" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  {/* <dl>
-                    <dt className="text-sm font-medium text-[#7D99AA] truncate">Analytics</dt>
-                    <dd>
-                      <div className="text-lg font-medium text-gray-900">View data</div>
-                    </dd>
-                  </dl> */}
-                </div>
-              </div>
-            </CardContent>
+           
           </Card>
           <Card>
             <CardContent className="p-5">
