@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, FileText, Users, BarChart, ChevronRight } from "lucide-react";
+import { CheckCircle, Users, BarChart } from "lucide-react";
 import { validationSurveySchema } from "shared/schema";
 import { surveyAPI } from "@/api/surveyApi";
 

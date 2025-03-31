@@ -1,39 +1,27 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileCog, Calendar, PieChart, FileText, Users, Eye, Trash2 } from "lucide-react";
-import { deleteSurvey, downloadCSV, exportSurveysToCSV } from "@/lib/survey-service";
+import { FileCog, Calendar, PieChart, FileText, Eye } from "lucide-react";
+import { downloadCSV, exportSurveysToCSV } from "@/lib/survey-service";
 import { ISurvey } from "@/interfaces/interface";
 import { surveyAPI } from "@/api/surveyApi";
 import { useAuthStore } from "@/store/authStore";
-interface Survey {
-  id: number;
-  name: string;
-  email: string;
-  phonenumber: string;
-  address: string;
-  message: string;
-  gender: string;
-  nationality: string;
-  createdAt: string
-}
+
 
 const AdminDashboard = () => {
   const { isAuthenticated } = useAuthStore();
-  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [viewSurvey, setViewSurvey] = useState<any | null>(null);
+  const [viewSurvey, setViewSurvey] = useState<ISurvey | null>(null);
   const [loading,setLoading]=useState(false)
   const [error, setError] = useState<string | null>(null);
   // const [surveys,setSurveys]=useState<ISurvey[]>([])
@@ -76,7 +64,7 @@ const AdminDashboard = () => {
   
   
   
-  const handleViewClick = (survey: any) => {
+  const handleViewClick = (survey: ISurvey) => {
     setViewSurvey(survey);
   };
   
@@ -259,7 +247,8 @@ const AdminDashboard = () => {
                     <dt className="text-sm font-medium text-[#7D99AA] truncate">Recent Submissions</dt>
                     <dd>
                       <div className="text-lg font-medium text-gray-900">
-                        {surveys ? surveys.filter((s: any) => {
+                        {surveys ? surveys.filter((s: ISurvey) => {
+                          if(!s.createdAt)return false
                           const date = new Date(s.createdAt);
                           const now = new Date();
                           const diffTime = Math.abs(now.getTime() - date.getTime());
@@ -362,7 +351,7 @@ const AdminDashboard = () => {
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="font-medium text-sm text-gray-500">Date:</div>
-                <div className="col-span-2 text-sm">{formatDate(viewSurvey.createdAt)}</div>
+                <div className="col-span-2 text-sm">{viewSurvey.createdAt ? formatDate(viewSurvey.createdAt):'N/A'}</div>
               </div>
             </div>
           )}

@@ -1,5 +1,5 @@
-import { ISurvey } from "@/interfaces/interface";
-import { ApiResponse, useAuthStore } from "@/store/authStore";
+import { ApiResponse, ISurvey } from "@/interfaces/interface";
+import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 const SERVER_URL=import.meta.env.VITE_SERVER_URL
 console.log("SERVERURL",SERVER_URL)
@@ -33,7 +33,7 @@ adminLogin: async (email: string, password: string):Promise<ApiResponse> => {
         const response = await api.post('/login', { email, password }, { withCredentials: true });
         console.log("Login response:", response);
 
-        return response
+        return response as ApiResponse
     } catch (error) {
         console.error("Login failed:", error);
         throw error;

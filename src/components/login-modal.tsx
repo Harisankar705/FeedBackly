@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
 import { Eye, EyeOff, Lock, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useLocation } from "wouter";
 import { useAuthStore } from "@/store/authStore";
+import { LoginModalProps } from "@/interfaces/interface";
 
 export const loginSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
@@ -18,10 +18,6 @@ export const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const login=useAuthStore((state)=>state.login) 

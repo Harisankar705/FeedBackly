@@ -1,24 +1,14 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { surveyAPI } from "@/api/surveyApi";
+import { AuthContextType, AuthProviderProps, IUser } from "@/interfaces/interface";
 
-export interface AuthContextType {
-  user: any;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  handleAuthError?:(error:any)=>void
-}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<IUser|null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -32,8 +22,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await surveyAPI.adminLogin(email, password);
       console.log("LOGIN response", response);
 
-      if (response?.success) {
-          setUser(response?.user); 
+      if (response?.success && response.user) {
+          setUser(response.user); 
           toast({ title: "Login successful", description: "Welcome back!" });
         return true;
       } else {

@@ -1,18 +1,15 @@
     import { surveyAPI } from '@/api/surveyApi';
-    import { AuthContextType } from '@/hooks/use-auth';
+import { AuthContextType } from '@/interfaces/interface';
+import { AxiosError } from 'axios';
     import {create} from 'zustand'
     import {createJSONStorage, persist} from 'zustand/middleware'
-    export interface ApiResponse{
-        success?:boolean,
-        user?:any,
-        error?:string
-    }
+   
     export const useAuthStore=create<AuthContextType>()(
         persist((set)=>({
             user:null,
             isAuthenticated:false,
             isLoading:false,
-            login:async(email,password)=>{
+            login:async(email:string,password:string)=>{
                 console.log('in authstore',password)
             set({isLoading:true})
             try {
@@ -37,12 +34,16 @@
                     console.error("Logout failed",error)
                 }
             },
-            handleAuthError:(error)=>{
-                if(error.response.status===200)
+            handleAuthError:(error:unknown)=>{
+                if(error instanceof AxiosError)
                 {
-                    set({user:null,isAuthenticated:false})
-                    console.warn("Session expired!Logging out!")
+                    if(error.response?.status===200)
+                        {
+                            set({user:null,isAuthenticated:false})
+                            console.warn("Session expired!Logging out!")
+                        }
                 }
+               
             }
         }),{
             name:'auth-storage',
